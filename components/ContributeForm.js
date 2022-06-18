@@ -1,8 +1,8 @@
 import React, { Component } from "react";
+import { withRouter } from "next/router";
 import { Form, Input, Message, Button } from "semantic-ui-react";
 import Campaign from "../ethereum/campaign";
-import web3 from "../ethereum/web3";
-// import { Router } from "../routes";
+import web3Provider, { web3 } from "../ethereum/web3";
 
 class ContributeForm extends Component {
   state = {
@@ -13,26 +13,20 @@ class ContributeForm extends Component {
 
   onSubmit = async (event) => {
     event.preventDefault();
-
+    const { router } = this.props;
     const campaign = await Campaign.at(this.props.address);
-
     this.setState({ loading: true, errorMessage: "" });
 
     try {
-      // const accounts = await web3.eth.getAccounts();
       await campaign.contribute({
-        from: web3.selectedAddress,
-        value: this.state.value,
+        from: web3Provider.selectedAddress,
+        value: web3.utils.toWei(this.state.value, "ether"),
       });
-
-      // .send({
-      //   from: accounts[0],
-      //   value: web3.utils.toWei(this.state.value, "ether"),
-      // });
-      // Router.replaceRoute(`/campaigns/${this.props.address}`);
+      router.push(`/campaigns/${this.props.address}`);
     } catch (err) {
       this.setState({ errorMessage: err.message });
     }
+
     this.setState({ loading: false, value: "" });
   };
 
@@ -57,4 +51,4 @@ class ContributeForm extends Component {
   }
 }
 
-export default ContributeForm;
+export default withRouter(ContributeForm);

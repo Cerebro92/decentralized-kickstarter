@@ -1,31 +1,26 @@
 import React, { Component } from "react";
+import { withRouter } from "next/router";
 import { Table, Button } from "semantic-ui-react";
-import web3 from "../ethereum/web3";
+import web3Provider, { web3 } from "../ethereum/web3";
 import Campaign from "../ethereum/campaign";
 
 class RequestRow extends Component {
   onApprove = async () => {
-    const campaign = await Campaign.at(this.props.address);
-
-    // const accounts = await web3.eth.getAccounts();
-    // console.log(this.props.address);
-    // console.log(web3.selectedAddress);
-    // console.log(this.props.id);
-    await campaign.approveRequest(this.props.id, {
-      from: web3.selectedAddress,
+    const { router, address, id } = this.props;
+    const campaign = await Campaign.at(address);
+    await campaign.approveRequest(id, {
+      from: web3Provider.selectedAddress,
     });
+    router.push(`/campaigns/${address}/requests`);
   };
 
   onFinalize = async () => {
-    const campaign = await Campaign.at(this.props.address);
-
-    // const accounts = await web3.eth.getAccounts();
-    await campaign.finalizeRequest(this.props.id, {
-      from: web3.selectedAddress,
+    const { router, address, id } = this.props;
+    const campaign = await Campaign.at(address);
+    await campaign.finalizeRequest(id, {
+      from: web3Provider.selectedAddress,
     });
-    // .send({
-    //   from: accounts[0],
-    // });
+    router.push(`/campaigns/${address}/requests`);
   };
 
   render() {
@@ -40,9 +35,7 @@ class RequestRow extends Component {
       >
         <Cell>{id}</Cell>
         <Cell>{request.description}</Cell>
-        {/* <Cell>{web3.utils.fromWei(request.value, "ether")}</Cell> */}
-        {/* <Cell>{request.value()}</Cell> */}
-        <Cell>TODO</Cell>
+        <Cell>{web3.utils.fromWei(request.value, "ether")}</Cell>
         <Cell>{request.recipient}</Cell>
         <Cell>
           {request.approvalCount.toString(10)}/{approversCount.toString(10)}
@@ -66,4 +59,4 @@ class RequestRow extends Component {
   }
 }
 
-export default RequestRow;
+export default withRouter(RequestRow);

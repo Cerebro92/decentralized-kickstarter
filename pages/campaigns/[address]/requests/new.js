@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Form, Button, Message, Input } from "semantic-ui-react";
-import Campaign from "../../../../ethereum/campaign";
-import web3 from "../../../../ethereum/web3";
-// import { Link, Router } from "../../../../routes";
-import Layout from "../../../../components/Layout";
 import Link from "next/link";
+import { withRouter } from "next/router";
+import web3Provider, { web3 } from "../../../../ethereum/web3";
+import Campaign from "../../../../ethereum/campaign";
+import Layout from "../../../../components/Layout";
 
 class RequestNew extends Component {
   state = {
@@ -23,21 +23,22 @@ class RequestNew extends Component {
 
   onSubmit = async (event) => {
     event.preventDefault();
-
-    const campaign = await Campaign.at(this.props.address);
+    const { router, address } = this.props;
+    const campaign = await Campaign.at(address);
     const { description, value, recipient } = this.state;
 
     this.setState({ loading: true, errorMessage: "" });
 
     try {
-      // const accounts = await web3.eth.getAccounts();
-      await campaign
-        // .createRequest(description, web3.utils.toWei(value, "ether"), recipient)
-        .createRequest(description, value, recipient, {
-          from: web3.selectedAddress,
-        });
-      // .send();
-      // Router.pushRoute(`/campaigns/${this.props.address}/requests`);
+      await campaign.createRequest(
+        description,
+        web3.utils.toWei(value, "ether"),
+        recipient,
+        {
+          from: web3Provider.selectedAddress,
+        }
+      );
+      router.push(`/campaigns/${address}/requests`);
     } catch (err) {
       this.setState({ errorMessage: err.message });
     }
@@ -87,4 +88,4 @@ class RequestNew extends Component {
   }
 }
 
-export default RequestNew;
+export default withRouter(RequestNew);

@@ -1,31 +1,24 @@
 import React, { Component } from "react";
 import { Card, Grid, Button } from "semantic-ui-react";
+import Link from "next/link";
+
+import { web3 } from "../ethereum/web3";
 import Layout from "../../../components/Layout";
 import Campaign from "../../../ethereum/campaign";
-// import web3 from "../../ethereum/web3";
 import ContributeForm from "../../../components/ContributeForm";
-import Link from "next/link";
 
 class CampaignShow extends Component {
   static async getInitialProps(props) {
-    console.log(props.query.address);
-    // console.log(Campaign());
-    const campaignInstance = await Campaign.at(props.query.address);
-
-    const summary = await campaignInstance.getSummary.call();
-    console.log(summary[0].toNumber());
-    console.log(summary[1].toNumber());
-    console.log(summary[2].toNumber());
-    console.log(summary[3].toNumber());
-    console.log(summary[4].toString(16, 10));
+    const campaign = await Campaign.at(props.query.address);
+    const summary = await campaign.getSummary.call();
 
     return {
       address: props.query.address,
       minimumContribution: summary[0].toNumber(),
-      balance: summary[1].toNumber(),
+      balance: summary[1],
       requestsCount: summary[2].toNumber(),
       approversCount: summary[3].toNumber(),
-      manager: summary[4].toString(16, 10),
+      manager: summary[4].toString(),
     };
   }
 
@@ -65,8 +58,7 @@ class CampaignShow extends Component {
           "Number of people who have already donated to this campaign",
       },
       {
-        // header: web3.utils.fromWei(balance, "ether"),
-        header: balance,
+        header: web3.utils.fromWei(balance, "ether"),
         meta: "Campaign Balance (ether)",
         description:
           "The balance is how much money this campaign has left to spend.",
