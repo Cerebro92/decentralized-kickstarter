@@ -24,7 +24,7 @@ async function createProvider() {
   }
   // If no injected web3 instance is detected, fall back to Ganache
   else {
-    web3Provider = new Web3.providers.HttpProvider("http://localhost:7545");
+    web3Provider = new Web3.providers.HttpProvider(process.env.ETH_NODE_URL);
   }
   return web3Provider;
 }

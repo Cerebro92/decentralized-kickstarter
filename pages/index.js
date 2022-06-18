@@ -7,7 +7,6 @@ import Link from "next/link";
 class CampaignIndex extends React.Component {
   static async getInitialProps() {
     const factoryInstance = await factory();
-    console.log(factoryInstance.address);
     const campaigns = await factoryInstance.getDeployedCampaigns.call();
     return { campaigns };
   }
